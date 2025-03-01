@@ -35,24 +35,46 @@ export default function LandingPage() {
     {
       title: "Simple Task Management",
       desc: "Easily add, edit, and complete tasks with a clean, intuitive interface.",
-      icon: <path d="M15 25 L20 35 L40 15" stroke="#2dd4bf" strokeWidth="4" strokeLinecap="round" />,
+      icon: (
+        <>
+          {/* Checklist icon */}
+          <rect x="10" y="10" width="28" height="28" rx="4" fill="none" stroke="#2dd4bf" strokeWidth="2" />
+          <path d="M18 24 L22 28 L30 20" stroke="#2dd4bf" strokeWidth="3" strokeLinecap="round" />
+        </>
+      ),
     },
     {
       title: "Secure Authentication",
       desc: "Sign in securely with email or Google, keeping your tasks safe.",
-      icon: <path d="M15 25 L20 35 L40 15" stroke="#2dd4bf" strokeWidth="4" strokeLinecap="round" />,
+      icon: (
+        <>
+          {/* Lock icon */}
+          <rect x="14" y="20" width="20" height="16" rx="2" fill="none" stroke="#2dd4bf" strokeWidth="2" />
+          <path d="M18 20 V16 A6 6 0 0 1 30 16 V20" stroke="#2dd4bf" strokeWidth="2" strokeLinecap="round" />
+          <circle cx="24" cy="28" r="2" fill="#2dd4bf" />
+        </>
+      ),
     },
     {
       title: "Persistent Storage",
       desc: "Your tasks sync with TaskForge, always there when you return.",
-      icon: <path d="M15 25 L20 35 L40 15" stroke="#2dd4bf" strokeWidth="4" strokeLinecap="round" />,
+      icon: (
+        <>
+          {/* Server rack icon */}
+          <rect x="12" y="10" width="24" height="28" rx="2" fill="none" stroke="#2dd4bf" strokeWidth="2" />
+          <path d="M16 14 H32" stroke="#2dd4bf" strokeWidth="2" strokeLinecap="round" />
+          <path d="M16 20 H32" stroke="#2dd4bf" strokeWidth="2" strokeLinecap="round" />
+          <path d="M16 26 H32" stroke="#2dd4bf" strokeWidth="2" strokeLinecap="round" />
+          <path d="M16 32 H32" stroke="#2dd4bf" strokeWidth="2" strokeLinecap="round" />
+        </>
+      ),
     },
   ];
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-teal-100 via-blue-200 to-purple-200 text-gray-800">
       {/* Header */}
-      <header className="flex justify-between items-center p-6 shadow-xl backdrop-blur-md bg-white bg-opacity-80">
+      <header className="flex justify-between items-center p-6 backdrop-blur-md bg-white bg-opacity-80">
         <div className="flex items-center gap-3 animate-fadeIn">
           <svg
             width="48"
