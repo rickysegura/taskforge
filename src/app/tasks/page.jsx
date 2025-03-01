@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { auth } from "../firebase";
 import { onAuthStateChanged } from "firebase/auth";
 import { useRouter } from "next/navigation";
-import TaskList from "../TaskList";
+import TaskList from "./TaskList";
 
 export const dynamic = "force-dynamic";
 

@@ -1,6 +1,4 @@
-import AuthPage from '../AuthPage';
-
-export const dynamic = "force-dynamic";
+import AuthPage from './AuthPage';
 
 export default function Auth() {
   return <AuthPage />;
