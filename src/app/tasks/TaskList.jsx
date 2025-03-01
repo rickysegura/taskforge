@@ -27,7 +27,7 @@ export default function TaskList() {
   const [isDarkMode, setIsDarkMode] = useState(false);
   const [user, setUser] = useState(null);
   const [username, setUsername] = useState("");
-  const [pendingUsername, setPendingUsername] = useState(""); // Temporary username during edit
+  const [pendingUsername, setPendingUsername] = useState("");
   const [showUsernameInput, setShowUsernameInput] = useState(false);
   const [editingTaskId, setEditingTaskId] = useState(null);
   const [editText, setEditText] = useState("");
@@ -125,7 +125,7 @@ export default function TaskList() {
         (docSnapshot) => {
           if (docSnapshot.exists() && docSnapshot.data().username) {
             setUsername(docSnapshot.data().username);
-            setPendingUsername(docSnapshot.data().username); // Set initial pending value
+            setPendingUsername(docSnapshot.data().username);
             setShowUsernameInput(false);
           } else {
             setUsername("");
@@ -172,7 +172,7 @@ export default function TaskList() {
           { merge: true }
         );
       }
-      setUsername(trimmedUsername); // Update displayed username
+      setUsername(trimmedUsername);
       setShowUsernameInput(false);
     } catch (error) {
       console.error("Error setting username:", error);
@@ -181,7 +181,7 @@ export default function TaskList() {
   };
 
   const cancelUsernameEdit = () => {
-    setPendingUsername(username); // Revert to the last saved username
+    setPendingUsername(username);
     setShowUsernameInput(false);
   };
 
@@ -307,14 +307,14 @@ export default function TaskList() {
       }`}
     >
       <div
-        className={`w-full max-w-2xl p-8 rounded-2xl shadow-2xl backdrop-blur-md transition-all duration-300 ${
+        className={`w-full max-w-2xl p-4 sm:p-8 rounded-2xl shadow-2xl backdrop-blur-md transition-all duration-300 ${
           isDarkMode ? "bg-gray-800 bg-opacity-70 text-white" : "bg-white bg-opacity-80 text-gray-800"
         }`}
       >
         <div className="mb-8">
           <div className="flex justify-between items-center flex-wrap gap-4">
             <h1
-              className={`text-4xl font-extrabold tracking-tight ${
+              className={`text-3xl sm:text-4xl font-extrabold tracking-tight ${
                 isDarkMode ? "text-teal-400" : "text-teal-600"
               }`}
             >
@@ -348,37 +348,39 @@ export default function TaskList() {
             </div>
           </div>
           {showUsernameInput ? (
-            <div className="mt-4 flex items-center gap-2">
+            <div className="mt-4 flex flex-col sm:flex-row items-center gap-4">
               <input
                 type="text"
                 value={pendingUsername}
                 onChange={(e) => setPendingUsername(e.target.value)}
                 onKeyDown={(e) => e.key === "Enter" && handleSetUsername()}
-                className={`flex-1 p-2 rounded-lg border-0 focus:outline-none focus:ring-2 focus:ring-teal-400 ${
-                  isDarkMode ? "bg-gray-600 text-white" : "bg-gray-200 text-gray-800"
+                className={`w-full sm:flex-1 p-2 sm:p-3 rounded-lg border-0 focus:outline-none focus:ring-2 focus:ring-teal-400 transition-all duration-300 placeholder-opacity-50 ${
+                  isDarkMode ? "bg-gray-600 text-white placeholder-gray-400" : "bg-gray-200 text-gray-800 placeholder-gray-500"
                 }`}
                 placeholder="Set your username..."
               />
-              <button
-                onClick={handleSetUsername}
-                className={`p-2 rounded-full transition-all duration-300 hover:scale-110 ${
-                  isDarkMode ? "bg-teal-500 hover:bg-teal-600" : "bg-teal-600 hover:bg-teal-700"
-                } text-white`}
-              >
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
-                </svg>
-              </button>
-              <button
-                onClick={cancelUsernameEdit}
-                className={`p-2 rounded-full transition-all duration-300 hover:scale-110 ${
-                  isDarkMode ? "text-gray-400 hover:bg-gray-400 hover:text-white" : "text-gray-500 hover:bg-gray-500 hover:text-white"
-                }`}
-              >
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
-                </svg>
-              </button>
+              <div className="flex gap-2">
+                <button
+                  onClick={handleSetUsername}
+                  className={`p-2 rounded-full transition-all duration-300 hover:scale-110 ${
+                    isDarkMode ? "bg-teal-500 hover:bg-teal-600" : "bg-teal-600 hover:bg-teal-700"
+                  } text-white`}
+                >
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
+                  </svg>
+                </button>
+                <button
+                  onClick={cancelUsernameEdit}
+                  className={`p-2 rounded-full transition-all duration-300 hover:scale-110 ${
+                    isDarkMode ? "text-gray-400 hover:bg-gray-400 hover:text-white" : "text-gray-500 hover:bg-gray-500 hover:text-white"
+                  }`}
+                >
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
             </div>
           ) : (
             <p
@@ -415,70 +417,73 @@ export default function TaskList() {
             </div>
           )}
         </div>
-        <div className="relative mb-8 flex items-center gap-2">
+        {/* Task Input Section */}
+        <div className="relative mb-8 flex flex-col md:flex-row items-center gap-4">
           <input
             type="text"
             value={taskText}
             onChange={(e) => setTaskText(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && handleAddTask()}
-            className={`flex-1 p-4 rounded-xl border-0 focus:outline-none focus:ring-2 focus:ring-teal-400 transition-all duration-300 placeholder-opacity-50 ${
+            className={`w-full p-3 sm:p-4 rounded-xl border-0 focus:outline-none focus:ring-2 focus:ring-teal-400 transition-all duration-300 placeholder-opacity-50 ${
               isDarkMode
                 ? "bg-gray-700 bg-opacity-70 text-white placeholder-gray-400"
                 : "bg-gray-100 text-gray-800 placeholder-gray-500"
             }`}
             placeholder="Add a new task..."
           />
-          <select
-            value={taskPriority}
-            onChange={(e) => setTaskPriority(e.target.value)}
-            className={`p-2 rounded-lg border-0 focus:outline-none focus:ring-2 focus:ring-teal-400 ${
-              isDarkMode ? "bg-gray-700 text-white" : "bg-gray-100 text-gray-800"
-            }`}
-          >
-            {priorityOptions.map((option) => (
-              <option key={option} value={option}>
-                {option}
-              </option>
-            ))}
-          </select>
-          <select
-            value={taskCategory}
-            onChange={(e) => setTaskCategory(e.target.value)}
-            className={`p-2 rounded-lg border-0 focus:outline-none focus:ring-2 focus:ring-teal-400 ${
-              isDarkMode ? "bg-gray-700 text-white" : "bg-gray-100 text-gray-800"
-            }`}
-          >
-            {categoryOptions.map((option) => (
-              <option key={option} value={option}>
-                {option}
-              </option>
-            ))}
-          </select>
-          <button
-            onClick={handleAddTask}
-            className={`p-2 rounded-full transition-all duration-300 hover:scale-110 ${
-              isDarkMode ? "bg-teal-500 hover:bg-teal-600" : "bg-teal-600 hover:bg-teal-700"
-            } text-white`}
-          >
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4" />
-            </svg>
-          </button>
+          <div className="flex w-full sm:w-auto gap-4">
+            <select
+              value={taskPriority}
+              onChange={(e) => setTaskPriority(e.target.value)}
+              className={`w-full sm:w-24 p-2 sm:p-3 rounded-lg border-0 focus:outline-none focus:ring-2 focus:ring-teal-400 ${
+                isDarkMode ? "bg-gray-700 text-white" : "bg-gray-100 text-gray-800"
+              }`}
+            >
+              {priorityOptions.map((option) => (
+                <option key={option} value={option}>
+                  {option}
+                </option>
+              ))}
+            </select>
+            <select
+              value={taskCategory}
+              onChange={(e) => setTaskCategory(e.target.value)}
+              className={`w-full sm:w-24 p-2 sm:p-3 rounded-lg border-0 focus:outline-none focus:ring-2 focus:ring-teal-400 ${
+                isDarkMode ? "bg-gray-700 text-white" : "bg-gray-100 text-gray-800"
+              }`}
+            >
+              {categoryOptions.map((option) => (
+                <option key={option} value={option}>
+                  {option}
+                </option>
+              ))}
+            </select>
+            <button
+              onClick={handleAddTask}
+              className={`p-3 rounded-full transition-all duration-300 hover:scale-110 ${
+                isDarkMode ? "bg-teal-500 hover:bg-teal-600" : "bg-teal-600 hover:bg-teal-700"
+              } text-white`}
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4" />
+              </svg>
+            </button>
+          </div>
         </div>
         <div className="space-y-6">
           {categoryOptions.map((category) => (
             groupedTasks[category].length > 0 && (
               <div key={category}>
                 <h2
-                  className={`text-xl font-semibold mb-2 ${categoryColors[category]}`}
+                  className={`text-lg sm:text-xl font-semibold mb-2 ${categoryColors[category]}`}
                 >
                   {category}
                 </h2>
-                <ul className="space-y-4">
+                <ul className="space-y-6">
                   {groupedTasks[category].map((task) => (
                     <li
                       key={task.id}
-                      className={`relative flex items-center gap-4 p-4 rounded-xl transition-all duration-300 transform hover:scale-105 hover:shadow-md ${
+                      className={`relative flex items-center gap-4 p-4 sm:p-6 rounded-xl transition-all duration-300 transform hover:scale-105 hover:shadow-md ${
                         isDarkMode ? "bg-gray-700 bg-opacity-70 text-white" : "bg-gray-50 bg-opacity-70 text-gray-800"
                       }`}
                     >
@@ -490,11 +495,11 @@ export default function TaskList() {
                           isDarkMode ? "bg-gray-600" : "bg-white"
                         }`}
                       />
-                      <span className={`w-20 ${priorityColors[task.priority || "Medium"]}`}>
+                      <span className={`w-16 sm:w-20 ${priorityColors[task.priority || "Medium"]}`}>
                         {task.priority || "Medium"}
                       </span>
                       <span
-                        className={`flex-1 text-lg font-medium transition-all duration-300 ${
+                        className={`flex-1 text-base sm:text-lg font-medium transition-all duration-300 ${
                           task.completed
                             ? isDarkMode
                               ? "line-through text-gray-500 opacity-70"
@@ -534,62 +539,64 @@ export default function TaskList() {
                       )}
                       {editingTaskId === task.id && (
                         <div className={`absolute inset-0 bg-opacity-90 flex items-center justify-center p-4 rounded-xl ${isDarkMode ? "bg-gray-800" : "bg-white"}`}>
-                          <div className="flex items-center gap-2 w-full">
+                          <div className="flex flex-col sm:flex-row items-center gap-4 w-full">
                             <input
                               type="text"
                               value={editText}
                               onChange={(e) => setEditText(e.target.value)}
                               onKeyDown={(e) => e.key === "Enter" && saveEdit(task.id)}
-                              className={`flex-1 p-2 rounded-lg border-0 focus:outline-none focus:ring-2 focus:ring-teal-400 ${
+                              className={`w-full p-2 sm:p-3 rounded-lg border-0 focus:outline-none focus:ring-2 focus:ring-teal-400 ${
                                 isDarkMode ? "bg-gray-600 text-white" : "bg-gray-200 text-gray-800"
                               }`}
                             />
-                            <select
-                              value={editPriority}
-                              onChange={(e) => setEditPriority(e.target.value)}
-                              className={`p-2 rounded-lg border-0 focus:outline-none focus:ring-2 focus:ring-teal-400 ${
-                                isDarkMode ? "bg-gray-600 text-white" : "bg-gray-200 text-gray-800"
-                              }`}
-                            >
-                              {priorityOptions.map((option) => (
-                                <option key={option} value={option}>
-                                  {option}
-                                </option>
-                              ))}
-                            </select>
-                            <select
-                              value={editCategory}
-                              onChange={(e) => setEditCategory(e.target.value)}
-                              className={`p-2 rounded-lg border-0 focus:outline-none focus:ring-2 focus:ring-teal-400 ${
-                                isDarkMode ? "bg-gray-600 text-white" : "bg-gray-200 text-gray-800"
-                              }`}
-                            >
-                              {categoryOptions.map((option) => (
-                                <option key={option} value={option}>
-                                  {option}
-                                </option>
-                              ))}
-                            </select>
-                            <button
-                              onClick={() => saveEdit(task.id)}
-                              className={`p-2 rounded-full transition-all duration-300 hover:scale-110 ${
-                                isDarkMode ? "text-green-400 hover:bg-green-400 hover:text-white" : "text-green-500 hover:bg-green-500 hover:text-white"
-                              }`}
-                            >
-                              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
-                              </svg>
-                            </button>
-                            <button
-                              onClick={cancelEdit}
-                              className={`p-2 rounded-full transition-all duration-300 hover:scale-110 ${
-                                isDarkMode ? "text-gray-400 hover:bg-gray-400 hover:text-white" : "text-gray-500 hover:bg-gray-500 hover:text-white"
-                              }`}
-                            >
-                              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
-                              </svg>
-                            </button>
+                            <div className="flex w-full sm:w-auto gap-2">
+                              <select
+                                value={editPriority}
+                                onChange={(e) => setEditPriority(e.target.value)}
+                                className={`w-full sm:w-24 p-2 sm:p-3 rounded-lg border-0 focus:outline-none focus:ring-2 focus:ring-teal-400 ${
+                                  isDarkMode ? "bg-gray-600 text-white" : "bg-gray-200 text-gray-800"
+                                }`}
+                              >
+                                {priorityOptions.map((option) => (
+                                  <option key={option} value={option}>
+                                    {option}
+                                  </option>
+                                ))}
+                              </select>
+                              <select
+                                value={editCategory}
+                                onChange={(e) => setEditCategory(e.target.value)}
+                                className={`w-full sm:w-24 p-2 sm:p-3 rounded-lg border-0 focus:outline-none focus:ring-2 focus:ring-teal-400 ${
+                                  isDarkMode ? "bg-gray-600 text-white" : "bg-gray-200 text-gray-800"
+                                }`}
+                              >
+                                {categoryOptions.map((option) => (
+                                  <option key={option} value={option}>
+                                    {option}
+                                  </option>
+                                ))}
+                              </select>
+                              <button
+                                onClick={() => saveEdit(task.id)}
+                                className={`p-2 sm:p-3 rounded-full transition-all duration-300 hover:scale-110 ${
+                                  isDarkMode ? "text-green-400 hover:bg-green-400 hover:text-white" : "text-green-500 hover:bg-green-500 hover:text-white"
+                                }`}
+                              >
+                                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
+                                </svg>
+                              </button>
+                              <button
+                                onClick={cancelEdit}
+                                className={`p-2 sm:p-3 rounded-full transition-all duration-300 hover:scale-110 ${
+                                  isDarkMode ? "text-gray-400 hover:bg-gray-400 hover:text-white" : "text-gray-500 hover:bg-gray-500 hover:text-white"
+                                }`}
+                              >
+                                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+                                </svg>
+                              </button>
+                            </div>
                           </div>
                         </div>
                       )}
