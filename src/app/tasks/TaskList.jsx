@@ -132,7 +132,7 @@ export default function TaskList() {
       setTasks([]);
       setUser(null);
       setIsDarkMode(false); // Reset dark mode on sign-out
-      router.push("/"); // Redirect to landing page
+      router.push("/auth"); // Redirect to landing page
     } catch (error) {
       console.error("Sign-out error:", error);
       alert("Failed to sign out.");
