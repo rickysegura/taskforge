@@ -65,6 +65,8 @@ export default function LandingPage() {
     },
   ];
 
+  const xHandle = "@TaskForgeApp_"; // Replace with your actual X handle once created
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-teal-100 via-blue-200 to-purple-200 text-gray-800">
       {/* Header */}
@@ -86,6 +88,23 @@ export default function LandingPage() {
           <h1 className="text-3xl font-extrabold tracking-tight text-teal-600">TaskForge</h1>
         </div>
         <div className="flex gap-4 items-center">
+          <a
+            href={`https://x.com/${xHandle.slice(1)}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-teal-600 hover:text-teal-700 transition-colors duration-300"
+          >
+            <svg
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              fill="currentColor"
+              xmlns="http://www.w3.org/2000/svg"
+              className="hover:scale-110 transition-transform duration-300"
+            >
+              <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
+            </svg>
+          </a>
           <Link
             href="/auth"
             className="px-6 py-2 rounded-full text-lg font-medium transition-all duration-300 hover:scale-105 bg-teal-600 text-white hover:bg-teal-700 focus:outline-none focus:ring-2 focus:ring-teal-500"
@@ -116,14 +135,11 @@ export default function LandingPage() {
           className="mt-10 md:mt-0 md:ml-10 transform hover:scale-105 transition-transform duration-300 animate-fadeIn"
           style={{ animationDelay: "0.5s" }}
         >
-          <svg width="350" height="350" viewBox="0 0 300 300" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <rect x="50" y="50" width="200" height="200" rx="15" fill="#e6fffa" stroke="#2dd4bf" strokeWidth="5" />
-            <path d="M80 80H220" stroke="#2dd4bf" strokeWidth="5" strokeLinecap="round" />
-            <path d="M80 120H220" stroke="#2dd4bf" strokeWidth="5" strokeLinecap="round" />
-            <path d="M80 160H180" stroke="#2dd4bf" strokeWidth="5" strokeLinecap="round" />
-            <circle cx="260" cy="40" r="35" fill="#2dd4bf" />
-            <path d="M245 25L275 55" stroke="white" strokeWidth="5" strokeLinecap="round" />
-          </svg>
+         <img
+            src="/desktop.png" // Adjust path if needed
+            alt="TaskForge Desktop Screenshot"
+            className="w-full max-w-[350px] md:max-w-[400px] max-h-[600px] rounded-lg shadow-lg object-contain"
+          />
         </div>
       </section>
 
@@ -170,7 +186,26 @@ export default function LandingPage() {
 
       {/* Footer */}
       <footer className="p-6 shadow-xl backdrop-blur-md bg-gray-800 bg-opacity-80 text-white text-center">
-        <p className="text-lg">© 2025 TaskForge. All rights reserved.</p>
+        <div className="flex justify-center items-center gap-4 mb-2">
+          <p className="text-lg">© 2025 TaskForge. All rights reserved.</p>
+          <a
+            href={`https://x.com/${xHandle.slice(1)}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-teal-400 hover:text-teal-300 transition-colors duration-300"
+          >
+            <svg
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              fill="currentColor"
+              xmlns="http://www.w3.org/2000/svg"
+              className="hover:scale-110 transition-transform duration-300"
+            >
+              <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
+            </svg>
+          </a>
+        </div>
       </footer>
     </div>
   );
