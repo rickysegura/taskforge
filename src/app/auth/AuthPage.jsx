@@ -63,10 +63,32 @@ export default function AuthPage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-teal-100 to-blue-200 flex items-center justify-center p-6">
       <div className="w-full max-w-md p-8 rounded-2xl shadow-2xl bg-white bg-opacity-80 text-gray-800">
-        <h1 className="text-4xl font-extrabold text-teal-600 mb-6">
-          {isRegistering ? "Register" : "Sign In"}
-        </h1>
-        {error && <p className="text-red-500 mb-4">{error}</p>}
+        {/* Taskforge Logo and Title */}
+        <div className="flex items-center justify-center mb-6">
+          <svg
+            width="48"
+            height="48"
+            viewBox="0 0 40 40"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+            className="transition-transform duration-300 hover:scale-110"
+          >
+            <path d="M10 10H30V30H10V10Z" stroke="#2dd4bf" strokeWidth="4" />
+            <path d="M15 15H25" stroke="#2dd4bf" strokeWidth="2" />
+            <path d="M20 20H25" stroke="#2dd4bf" strokeWidth="2" />
+            <path d="M15 25H20" stroke="#2dd4bf" strokeWidth="2" />
+          </svg>
+          <h1 className="text-4xl font-extrabold text-teal-600 ml-3">
+            Taskforge
+          </h1>
+        </div>
+
+        {/* Subtitle */}
+        <p className="text-center text-gray-600 mb-6">
+          {isRegistering ? "Forge your account" : "Sign in to your tasks"}
+        </p>
+
+        {error && <p className="text-red-500 mb-4 text-center">{error}</p>}
         <form onSubmit={handleEmailAuth} className="space-y-4">
           <input
             type="email"
@@ -88,7 +110,7 @@ export default function AuthPage() {
             type="submit"
             className="w-full py-4 rounded-full bg-teal-600 text-white hover:bg-teal-700 transition-all"
           >
-            {isRegistering ? "Register" : "Sign In"}
+            {isRegistering ? "Forge Account" : "Sign In"}
           </button>
         </form>
 
@@ -97,7 +119,6 @@ export default function AuthPage() {
           onClick={handleGoogleSignIn}
           className="w-full mt-4 py-3 px-4 rounded flex items-center justify-center bg-white border border-gray-300 hover:bg-gray-100 text-gray-700 font-roboto transition-all"
         >
-          {/* Google Icon (SVG) */}
           <svg
             className="w-5 h-5 mr-2"
             viewBox="0 0 24 24"
@@ -129,7 +150,9 @@ export default function AuthPage() {
             onClick={() => setIsRegistering(!isRegistering)}
             className="text-teal-600 hover:underline transition-colors"
           >
-            {isRegistering ? "Already have an account? Sign In" : "Need an account? Register"}
+            {isRegistering
+              ? "Already forged an account? Sign In"
+              : "Need an account? Forge one"}
           </button>
         </div>
 
