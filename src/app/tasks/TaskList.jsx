@@ -14,30 +14,71 @@ import {
   where,
   doc,
   setDoc,
+  getDoc,
 } from "firebase/firestore";
 
 export const dynamic = "force-dynamic";
 
 export default function TaskList() {
   const [taskText, setTaskText] = useState("");
+  const [taskPriority, setTaskPriority] = useState("Medium");
+  const [taskCategory, setTaskCategory] = useState("General");
   const [tasks, setTasks] = useState([]);
   const [isDarkMode, setIsDarkMode] = useState(false);
   const [user, setUser] = useState(null);
+  const [username, setUsername] = useState("");
+  const [pendingUsername, setPendingUsername] = useState(""); // Temporary username during edit
+  const [showUsernameInput, setShowUsernameInput] = useState(false);
   const [editingTaskId, setEditingTaskId] = useState(null);
   const [editText, setEditText] = useState("");
+  const [editPriority, setEditPriority] = useState("Medium");
+  const [editCategory, setEditCategory] = useState("General");
   const router = useRouter();
+
+  const priorityOptions = ["High", "Medium", "Low"];
+  const priorityColors = {
+    High: isDarkMode ? "text-red-400" : "text-red-500",
+    Medium: isDarkMode ? "text-yellow-400" : "text-yellow-500",
+    Low: isDarkMode ? "text-green-400" : "text-green-500",
+  };
+  const categoryOptions = ["General", "Work", "Personal", "Urgent"];
+  const categoryColors = {
+    General: isDarkMode ? "text-gray-300" : "text-gray-600",
+    Work: isDarkMode ? "text-blue-400" : "text-blue-500",
+    Personal: isDarkMode ? "text-purple-400" : "text-purple-500",
+    Urgent: isDarkMode ? "text-orange-400" : "text-orange-500",
+  };
+
+  const completedTasks = tasks.filter((task) => task.completed).length;
+  const totalTasks = tasks.length;
+  const progressPercentage = totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0;
+
+  const groupedTasks = categoryOptions.reduce((acc, category) => {
+    acc[category] = tasks
+      .filter((task) => (task.category || "General") === category)
+      .sort((a, b) => {
+        const priorityOrder = { High: 3, Medium: 2, Low: 1 };
+        const priorityDiff = priorityOrder[b.priority || "Medium"] - priorityOrder[a.priority || "Medium"];
+        return priorityDiff !== 0 ? priorityDiff : b.createdAt.localeCompare(a.createdAt);
+      });
+    return acc;
+  }, {});
 
   useEffect(() => {
     let unsubscribeTasks = null;
     let unsubscribePrefs = null;
+    let unsubscribeUser = null;
 
     const unsubscribeAuth = auth.onAuthStateChanged((currentUser) => {
       setUser(currentUser);
       if (!currentUser) {
         if (unsubscribeTasks) unsubscribeTasks();
         if (unsubscribePrefs) unsubscribePrefs();
+        if (unsubscribeUser) unsubscribeUser();
         setTasks([]);
         setIsDarkMode(false);
+        setUsername("");
+        setPendingUsername("");
         router.push("/auth");
         return;
       }
@@ -77,14 +118,72 @@ export default function TaskList() {
           setIsDarkMode(false);
         }
       );
+
+      const userDocRef = doc(db, "users", currentUser.uid);
+      unsubscribeUser = onSnapshot(
+        userDocRef,
+        (docSnapshot) => {
+          if (docSnapshot.exists() && docSnapshot.data().username) {
+            setUsername(docSnapshot.data().username);
+            setPendingUsername(docSnapshot.data().username); // Set initial pending value
+            setShowUsernameInput(false);
+          } else {
+            setUsername("");
+            setPendingUsername("");
+            setShowUsernameInput(true);
+          }
+        },
+        (error) => {
+          console.error("Error fetching username:", error);
+          setUsername("");
+          setPendingUsername("");
+        }
+      );
     });
 
     return () => {
       if (unsubscribeTasks) unsubscribeTasks();
       if (unsubscribePrefs) unsubscribePrefs();
+      if (unsubscribeUser) unsubscribeUser();
       unsubscribeAuth();
     };
   }, [router]);
+
+  const handleSetUsername = async () => {
+    const trimmedUsername = pendingUsername.trim();
+    if (!trimmedUsername || !user) return;
+    try {
+      const userDocRef = doc(db, "users", user.uid);
+      const userDocSnapshot = await getDoc(userDocRef);
+
+      if (!userDocSnapshot.exists()) {
+        await setDoc(userDocRef, {
+          username: trimmedUsername,
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+        });
+      } else {
+        await setDoc(
+          userDocRef,
+          {
+            username: trimmedUsername,
+            updatedAt: new Date().toISOString(),
+          },
+          { merge: true }
+        );
+      }
+      setUsername(trimmedUsername); // Update displayed username
+      setShowUsernameInput(false);
+    } catch (error) {
+      console.error("Error setting username:", error);
+      alert("Failed to set username.");
+    }
+  };
+
+  const cancelUsernameEdit = () => {
+    setPendingUsername(username); // Revert to the last saved username
+    setShowUsernameInput(false);
+  };
 
   const handleAddTask = async () => {
     const trimmedTask = taskText.trim();
@@ -93,10 +192,14 @@ export default function TaskList() {
       await addDoc(collection(db, "tasks"), {
         text: trimmedTask,
         completed: false,
+        priority: taskPriority,
+        category: taskCategory,
         uid: user.uid,
         createdAt: new Date().toISOString(),
       });
       setTaskText("");
+      setTaskPriority("Medium");
+      setTaskCategory("General");
     } catch (error) {
       console.error("Error adding task:", error);
       alert("Failed to add task.");
@@ -125,9 +228,11 @@ export default function TaskList() {
     }
   };
 
-  const startEditing = (id, text) => {
+  const startEditing = (id, text, priority, category) => {
     setEditingTaskId(id);
     setEditText(text);
+    setEditPriority(priority || "Medium");
+    setEditCategory(category || "General");
   };
 
   const saveEdit = async (id) => {
@@ -138,9 +243,15 @@ export default function TaskList() {
     }
     try {
       const taskRef = doc(db, "tasks", id);
-      await updateDoc(taskRef, { text: trimmedText });
+      await updateDoc(taskRef, { 
+        text: trimmedText, 
+        priority: editPriority, 
+        category: editCategory 
+      });
       setEditingTaskId(null);
       setEditText("");
+      setEditPriority("Medium");
+      setEditCategory("General");
     } catch (error) {
       console.error("Error editing task:", error);
       alert("Failed to edit task.");
@@ -150,6 +261,8 @@ export default function TaskList() {
   const cancelEdit = () => {
     setEditingTaskId(null);
     setEditText("");
+    setEditPriority("Medium");
+    setEditCategory("General");
   };
 
   const handleSignOut = async () => {
@@ -158,6 +271,8 @@ export default function TaskList() {
       setTasks([]);
       setUser(null);
       setIsDarkMode(false);
+      setUsername("");
+      setPendingUsername("");
       router.push("/auth");
     } catch (error) {
       console.error("Sign-out error:", error);
@@ -232,30 +347,116 @@ export default function TaskList() {
               </button>
             </div>
           </div>
-          <p
-            className={`mt-2 text-lg font-medium ${
-              isDarkMode ? "text-gray-300" : "text-teal-600"
-            }`}
-          >
-            Welcome, {user?.email || "User"}
-          </p>
+          {showUsernameInput ? (
+            <div className="mt-4 flex items-center gap-2">
+              <input
+                type="text"
+                value={pendingUsername}
+                onChange={(e) => setPendingUsername(e.target.value)}
+                onKeyDown={(e) => e.key === "Enter" && handleSetUsername()}
+                className={`flex-1 p-2 rounded-lg border-0 focus:outline-none focus:ring-2 focus:ring-teal-400 ${
+                  isDarkMode ? "bg-gray-600 text-white" : "bg-gray-200 text-gray-800"
+                }`}
+                placeholder="Set your username..."
+              />
+              <button
+                onClick={handleSetUsername}
+                className={`p-2 rounded-full transition-all duration-300 hover:scale-110 ${
+                  isDarkMode ? "bg-teal-500 hover:bg-teal-600" : "bg-teal-600 hover:bg-teal-700"
+                } text-white`}
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
+                </svg>
+              </button>
+              <button
+                onClick={cancelUsernameEdit}
+                className={`p-2 rounded-full transition-all duration-300 hover:scale-110 ${
+                  isDarkMode ? "text-gray-400 hover:bg-gray-400 hover:text-white" : "text-gray-500 hover:bg-gray-500 hover:text-white"
+                }`}
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+          ) : (
+            <p
+              className={`mt-2 text-lg font-medium flex items-center gap-2 ${
+                isDarkMode ? "text-gray-300" : "text-teal-600"
+              }`}
+            >
+              Welcome, {username || user.email}
+              <button
+                onClick={() => setShowUsernameInput(true)}
+                className={`text-sm hover:underline transition-colors ${
+                  isDarkMode ? "text-teal-400" : "text-teal-600"
+                }`}
+              >
+                (Edit)
+              </button>
+            </p>
+          )}
+          {totalTasks > 0 && (
+            <div className="mt-6">
+              <div className="flex justify-between items-center mb-2">
+                <span className={`text-sm font-medium ${isDarkMode ? "text-gray-300" : "text-gray-600"}`}>
+                  Progress: {completedTasks}/{totalTasks} ({progressPercentage}%)
+                </span>
+              </div>
+              <div className="w-full bg-gray-200 rounded-full h-4 dark:bg-gray-700">
+                <div
+                  className={`h-4 rounded-full transition-all duration-300 ${
+                    isDarkMode ? "bg-teal-500" : "bg-teal-600"
+                  }`}
+                  style={{ width: `${progressPercentage}%` }}
+                ></div>
+              </div>
+            </div>
+          )}
         </div>
-        <div className="relative mb-8">
+        <div className="relative mb-8 flex items-center gap-2">
           <input
             type="text"
             value={taskText}
             onChange={(e) => setTaskText(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && handleAddTask()}
-            className={`w-full p-4 pr-12 rounded-xl border-0 focus:outline-none focus:ring-2 focus:ring-teal-400 transition-all duration-300 placeholder-opacity-50 ${
+            className={`flex-1 p-4 rounded-xl border-0 focus:outline-none focus:ring-2 focus:ring-teal-400 transition-all duration-300 placeholder-opacity-50 ${
               isDarkMode
                 ? "bg-gray-700 bg-opacity-70 text-white placeholder-gray-400"
                 : "bg-gray-100 text-gray-800 placeholder-gray-500"
             }`}
             placeholder="Add a new task..."
           />
+          <select
+            value={taskPriority}
+            onChange={(e) => setTaskPriority(e.target.value)}
+            className={`p-2 rounded-lg border-0 focus:outline-none focus:ring-2 focus:ring-teal-400 ${
+              isDarkMode ? "bg-gray-700 text-white" : "bg-gray-100 text-gray-800"
+            }`}
+          >
+            {priorityOptions.map((option) => (
+              <option key={option} value={option}>
+                {option}
+              </option>
+            ))}
+          </select>
+          <select
+            value={taskCategory}
+            onChange={(e) => setTaskCategory(e.target.value)}
+            className={`p-2 rounded-lg border-0 focus:outline-none focus:ring-2 focus:ring-teal-400 ${
+              isDarkMode ? "bg-gray-700 text-white" : "bg-gray-100 text-gray-800"
+            }`}
+          >
+            {categoryOptions.map((option) => (
+              <option key={option} value={option}>
+                {option}
+              </option>
+            ))}
+          </select>
           <button
             onClick={handleAddTask}
-            className={`absolute right-2 top-1/2 transform -translate-y-1/2 p-2 rounded-full transition-all duration-300 hover:scale-110 ${
+            className={`p-2 rounded-full transition-all duration-300 hover:scale-110 ${
               isDarkMode ? "bg-teal-500 hover:bg-teal-600" : "bg-teal-600 hover:bg-teal-700"
             } text-white`}
           >
@@ -264,98 +465,144 @@ export default function TaskList() {
             </svg>
           </button>
         </div>
-        <ul className="space-y-4">
-          {tasks.map((task) => (
-            <li
-              key={task.id}
-              className={`flex items-center gap-4 p-4 rounded-xl transition-all duration-300 transform hover:scale-105 hover:shadow-md ${
-                isDarkMode ? "bg-gray-700 bg-opacity-70 text-white" : "bg-gray-50 bg-opacity-70 text-gray-800"
-              }`}
-            >
-              <input
-                type="checkbox"
-                checked={task.completed}
-                onChange={() => toggleTask(task.id, task.completed)}
-                className={`h-6 w-6 rounded-full text-teal-500 focus:ring-teal-400 transition-all duration-200 ${
-                  isDarkMode ? "bg-gray-600" : "bg-white"
-                }`}
-              />
-              {editingTaskId === task.id ? (
-                <div className="flex-1 flex items-center gap-2">
-                  <input
-                    type="text"
-                    value={editText}
-                    onChange={(e) => setEditText(e.target.value)}
-                    onKeyDown={(e) => e.key === "Enter" && saveEdit(task.id)}
-                    className={`flex-1 p-2 rounded-lg border-0 focus:outline-none focus:ring-2 focus:ring-teal-400 ${
-                      isDarkMode ? "bg-gray-600 text-white" : "bg-gray-200 text-gray-800"
-                    }`}
-                  />
-                  <button
-                    onClick={() => saveEdit(task.id)}
-                    className={`p-2 rounded-full transition-all duration-300 hover:scale-110 ${
-                      isDarkMode ? "text-green-400 hover:bg-green-400 hover:text-white" : "text-green-500 hover:bg-green-500 hover:text-white"
-                    }`}
-                  >
-                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
-                    </svg>
-                  </button>
-                  <button
-                    onClick={cancelEdit}
-                    className={`p-2 rounded-full transition-all duration-300 hover:scale-110 ${
-                      isDarkMode ? "text-gray-400 hover:bg-gray-400 hover:text-white" : "text-gray-500 hover:bg-gray-500 hover:text-white"
-                    }`}
-                  >
-                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
-                    </svg>
-                  </button>
-                </div>
-              ) : (
-                <>
-                  <span
-                    className={`flex-1 text-lg font-medium transition-all duration-300 ${
-                      task.completed
-                        ? isDarkMode
-                          ? "line-through text-gray-500 opacity-70"
-                          : "line-through text-gray-400 opacity-70"
-                        : isDarkMode
-                        ? "text-white"
-                        : "text-gray-800"
-                    }`}
-                  >
-                    {task.text}
-                  </span>
-                  {!task.completed && (
-                    <button
-                      onClick={() => startEditing(task.id, task.text)}
-                      className={`p-2 rounded-full transition-all duration-300 hover:scale-110 ${
-                        isDarkMode ? "text-yellow-400 hover:bg-yellow-400 hover:text-white" : "text-yellow-500 hover:bg-yellow-500 hover:text-white"
+        <div className="space-y-6">
+          {categoryOptions.map((category) => (
+            groupedTasks[category].length > 0 && (
+              <div key={category}>
+                <h2
+                  className={`text-xl font-semibold mb-2 ${categoryColors[category]}`}
+                >
+                  {category}
+                </h2>
+                <ul className="space-y-4">
+                  {groupedTasks[category].map((task) => (
+                    <li
+                      key={task.id}
+                      className={`relative flex items-center gap-4 p-4 rounded-xl transition-all duration-300 transform hover:scale-105 hover:shadow-md ${
+                        isDarkMode ? "bg-gray-700 bg-opacity-70 text-white" : "bg-gray-50 bg-opacity-70 text-gray-800"
                       }`}
                     >
-                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                      </svg>
-                    </button>
-                  )}
-                  <button
-                    onClick={() => deleteTask(task.id)}
-                    className={`p-2 rounded-full transition-all duration-300 hover:scale-110 ${
-                      isDarkMode
-                        ? "text-red-400 hover:bg-red-400 hover:text-white"
-                        : "text-red-500 hover:bg-red-500 hover:text-white"
-                    }`}
-                  >
-                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
-                    </svg>
-                  </button>
-                </>
-              )}
-            </li>
+                      <input
+                        type="checkbox"
+                        checked={task.completed}
+                        onChange={() => toggleTask(task.id, task.completed)}
+                        className={`h-6 w-6 rounded-full text-teal-500 focus:ring-teal-400 transition-all duration-200 ${
+                          isDarkMode ? "bg-gray-600" : "bg-white"
+                        }`}
+                      />
+                      <span className={`w-20 ${priorityColors[task.priority || "Medium"]}`}>
+                        {task.priority || "Medium"}
+                      </span>
+                      <span
+                        className={`flex-1 text-lg font-medium transition-all duration-300 ${
+                          task.completed
+                            ? isDarkMode
+                              ? "line-through text-gray-500 opacity-70"
+                              : "line-through text-gray-400 opacity-70"
+                            : isDarkMode
+                            ? "text-white"
+                            : "text-gray-800"
+                        }`}
+                      >
+                        {task.text}
+                      </span>
+                      {!task.completed && editingTaskId !== task.id && (
+                        <button
+                          onClick={() => startEditing(task.id, task.text, task.priority, task.category)}
+                          className={`p-2 rounded-full transition-all duration-300 hover:scale-110 ${
+                            isDarkMode ? "text-yellow-400 hover:bg-yellow-400 hover:text-white" : "text-yellow-500 hover:bg-yellow-500 hover:text-white"
+                          }`}
+                        >
+                          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                          </svg>
+                        </button>
+                      )}
+                      {editingTaskId !== task.id && (
+                        <button
+                          onClick={() => deleteTask(task.id)}
+                          className={`p-2 rounded-full transition-all duration-300 hover:scale-110 ${
+                            isDarkMode
+                              ? "text-red-400 hover:bg-red-400 hover:text-white"
+                              : "text-red-500 hover:bg-red-500 hover:text-white"
+                          }`}
+                        >
+                          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+                          </svg>
+                        </button>
+                      )}
+                      {editingTaskId === task.id && (
+                        <div className={`absolute inset-0 bg-opacity-90 flex items-center justify-center p-4 rounded-xl ${isDarkMode ? "bg-gray-800" : "bg-white"}`}>
+                          <div className="flex items-center gap-2 w-full">
+                            <input
+                              type="text"
+                              value={editText}
+                              onChange={(e) => setEditText(e.target.value)}
+                              onKeyDown={(e) => e.key === "Enter" && saveEdit(task.id)}
+                              className={`flex-1 p-2 rounded-lg border-0 focus:outline-none focus:ring-2 focus:ring-teal-400 ${
+                                isDarkMode ? "bg-gray-600 text-white" : "bg-gray-200 text-gray-800"
+                              }`}
+                            />
+                            <select
+                              value={editPriority}
+                              onChange={(e) => setEditPriority(e.target.value)}
+                              className={`p-2 rounded-lg border-0 focus:outline-none focus:ring-2 focus:ring-teal-400 ${
+                                isDarkMode ? "bg-gray-600 text-white" : "bg-gray-200 text-gray-800"
+                              }`}
+                            >
+                              {priorityOptions.map((option) => (
+                                <option key={option} value={option}>
+                                  {option}
+                                </option>
+                              ))}
+                            </select>
+                            <select
+                              value={editCategory}
+                              onChange={(e) => setEditCategory(e.target.value)}
+                              className={`p-2 rounded-lg border-0 focus:outline-none focus:ring-2 focus:ring-teal-400 ${
+                                isDarkMode ? "bg-gray-600 text-white" : "bg-gray-200 text-gray-800"
+                              }`}
+                            >
+                              {categoryOptions.map((option) => (
+                                <option key={option} value={option}>
+                                  {option}
+                                </option>
+                              ))}
+                            </select>
+                            <button
+                              onClick={() => saveEdit(task.id)}
+                              className={`p-2 rounded-full transition-all duration-300 hover:scale-110 ${
+                                isDarkMode ? "text-green-400 hover:bg-green-400 hover:text-white" : "text-green-500 hover:bg-green-500 hover:text-white"
+                              }`}
+                            >
+                              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
+                              </svg>
+                            </button>
+                            <button
+                              onClick={cancelEdit}
+                              className={`p-2 rounded-full transition-all duration-300 hover:scale-110 ${
+                                isDarkMode ? "text-gray-400 hover:bg-gray-400 hover:text-white" : "text-gray-500 hover:bg-gray-500 hover:text-white"
+                              }`}
+                            >
+                              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+                              </svg>
+                            </button>
+                          </div>
+                        </div>
+                      )}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )
           ))}
-        </ul>
+          {totalTasks === 0 && (
+            <p className="text-center text-gray-500">No tasks yet</p>
+          )}
+        </div>
       </div>
     </div>
   );

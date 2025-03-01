@@ -37,7 +37,6 @@ export default function LandingPage() {
       desc: "Easily add, edit, and complete tasks with a clean, intuitive interface.",
       icon: (
         <>
-          {/* Checklist icon */}
           <rect x="10" y="10" width="28" height="28" rx="4" fill="none" stroke="#2dd4bf" strokeWidth="2" />
           <path d="M18 24 L22 28 L30 20" stroke="#2dd4bf" strokeWidth="3" strokeLinecap="round" />
         </>
@@ -48,7 +47,6 @@ export default function LandingPage() {
       desc: "Sign in securely with email or Google, keeping your tasks safe.",
       icon: (
         <>
-          {/* Lock icon */}
           <rect x="14" y="20" width="20" height="16" rx="2" fill="none" stroke="#2dd4bf" strokeWidth="2" />
           <path d="M18 20 V16 A6 6 0 0 1 30 16 V20" stroke="#2dd4bf" strokeWidth="2" strokeLinecap="round" />
           <circle cx="24" cy="28" r="2" fill="#2dd4bf" />
@@ -56,16 +54,12 @@ export default function LandingPage() {
       ),
     },
     {
-      title: "Persistent Storage",
-      desc: "Your tasks sync with TaskForge, always there when you return.",
+      title: "Completely Free",
+      desc: "Enjoy all TaskForge features at no cost!",
       icon: (
         <>
-          {/* Server rack icon */}
-          <rect x="12" y="10" width="24" height="28" rx="2" fill="none" stroke="#2dd4bf" strokeWidth="2" />
-          <path d="M16 14 H32" stroke="#2dd4bf" strokeWidth="2" strokeLinecap="round" />
-          <path d="M16 20 H32" stroke="#2dd4bf" strokeWidth="2" strokeLinecap="round" />
-          <path d="M16 26 H32" stroke="#2dd4bf" strokeWidth="2" strokeLinecap="round" />
-          <path d="M16 32 H32" stroke="#2dd4bf" strokeWidth="2" strokeLinecap="round" />
+          <circle cx="24" cy="24" r="14" fill="none" stroke="#2dd4bf" strokeWidth="2" />
+          <path d="M24 18 V30 M18 24 H30" stroke="#2dd4bf" strokeWidth="2" strokeLinecap="round" />
         </>
       ),
     },
@@ -109,13 +103,13 @@ export default function LandingPage() {
           </h2>
           <p className="text-xl font-medium mb-8 text-gray-600">
             Organize your tasks, stay on track, and boost your efficiency with
-            TaskForge—your ultimate productivity companion.
+            TaskForge—your free ultimate productivity companion.
           </p>
           <Link
             href="/auth"
             className="inline-block px-8 py-4 rounded-full text-xl font-semibold transition-all duration-300 hover:scale-105 hover:shadow-lg bg-teal-600 text-white hover:bg-teal-700 focus:outline-none focus:ring-2 focus:ring-teal-500"
           >
-            Start Now
+            Start Now - It's Free!
           </Link>
         </div>
         <div
@@ -164,13 +158,13 @@ export default function LandingPage() {
       <section id="get-started" className="p-10 text-center mx-6">
         <h3 className="text-4xl font-bold mb-6 text-gray-800">Ready to Get Started?</h3>
         <p className="text-xl font-medium mb-8 text-gray-600">
-          Join TaskForge today and take control of your productivity.
+          Join TaskForge today for free and take control of your productivity.
         </p>
         <Link
           href="/auth"
           className="inline-block px-8 py-4 rounded-full text-xl font-semibold transition-all duration-300 hover:scale-105 hover:shadow-lg bg-teal-600 text-white hover:bg-teal-700 focus:outline-none focus:ring-2 focus:ring-teal-500"
         >
-          Sign Up Now
+          Sign Up Free Now
         </Link>
       </section>
 
