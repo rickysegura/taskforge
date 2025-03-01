@@ -5,13 +5,13 @@ import { getAuth } from 'firebase/auth';
 
 // Your web app's Firebase configuration
 const firebaseConfig = {
-  apiKey: "AIzaSyA2oVByxHoWhm3Y5-keOtZXzLxm0V18xyc",
-  authDomain: "rickysegura-dc454.firebaseapp.com",
-  projectId: "rickysegura-dc454",
-  storageBucket: "rickysegura-dc454.firebasestorage.app",
-  messagingSenderId: "1026382777269",
-  appId: "1:1026382777269:web:932bfcd5d75ca957f467fc",
-  measurementId: "G-TB71DYFLC9"
+  apiKey: process.env.NEXT_PUBLIC_GOOGLE_API_KEY,
+  authDomain: process.env.NEXT_PUBLIC_AUTH_DOMAIN,
+  projectId: process.env.NEXT_PUBLIC_PROJECT_ID,
+  storageBucket: process.env.NEXT_PUBLIC_STORAGE_BUCKET,
+  messagingSenderId: process.env.NEXT_PUBLIC_SENDER_ID,
+  appId: process.env.NEXT_PUBLIC_APP_ID,
+  measurementId: process.env.NEXT_PUBLIC_MEASUREMENT_ID,
 };
 
 // Initialize Firebase app
