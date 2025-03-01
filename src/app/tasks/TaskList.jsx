@@ -21,8 +21,10 @@ export const dynamic = "force-dynamic";
 export default function TaskList() {
   const [taskText, setTaskText] = useState("");
   const [tasks, setTasks] = useState([]);
-  const [isDarkMode, setIsDarkMode] = useState(false); // Local dark mode state
-  const [user, setUser] = useState(null); // Track user state
+  const [isDarkMode, setIsDarkMode] = useState(false);
+  const [user, setUser] = useState(null);
+  const [editingTaskId, setEditingTaskId] = useState(null);
+  const [editText, setEditText] = useState("");
   const router = useRouter();
 
   useEffect(() => {
@@ -35,12 +37,11 @@ export default function TaskList() {
         if (unsubscribeTasks) unsubscribeTasks();
         if (unsubscribePrefs) unsubscribePrefs();
         setTasks([]);
-        setIsDarkMode(false); // Reset to light mode on sign-out
+        setIsDarkMode(false);
         router.push("/auth");
         return;
       }
 
-      // Fetch tasks
       const tasksQuery = query(collection(db, "tasks"), where("uid", "==", currentUser.uid));
       unsubscribeTasks = onSnapshot(
         tasksQuery,
@@ -60,7 +61,6 @@ export default function TaskList() {
         }
       );
 
-      // Fetch and sync dark mode preference
       const prefDocRef = doc(db, "preferences", currentUser.uid);
       unsubscribePrefs = onSnapshot(
         prefDocRef,
@@ -68,14 +68,13 @@ export default function TaskList() {
           if (docSnapshot.exists()) {
             setIsDarkMode(docSnapshot.data().darkMode || false);
           } else {
-            // Initialize with default if document doesn’t exist
             setDoc(prefDocRef, { darkMode: false }, { merge: true });
             setIsDarkMode(false);
           }
         },
         (error) => {
           console.error("Error fetching preferences:", error);
-          setIsDarkMode(false); // Fallback to light mode on error
+          setIsDarkMode(false);
         }
       );
     });
@@ -126,13 +125,40 @@ export default function TaskList() {
     }
   };
 
+  const startEditing = (id, text) => {
+    setEditingTaskId(id);
+    setEditText(text);
+  };
+
+  const saveEdit = async (id) => {
+    const trimmedText = editText.trim();
+    if (!trimmedText || !user) {
+      setEditingTaskId(null);
+      return;
+    }
+    try {
+      const taskRef = doc(db, "tasks", id);
+      await updateDoc(taskRef, { text: trimmedText });
+      setEditingTaskId(null);
+      setEditText("");
+    } catch (error) {
+      console.error("Error editing task:", error);
+      alert("Failed to edit task.");
+    }
+  };
+
+  const cancelEdit = () => {
+    setEditingTaskId(null);
+    setEditText("");
+  };
+
   const handleSignOut = async () => {
     try {
       await signOut(auth);
       setTasks([]);
       setUser(null);
-      setIsDarkMode(false); // Reset dark mode on sign-out
-      router.push("/auth"); // Redirect to landing page
+      setIsDarkMode(false);
+      router.push("/auth");
     } catch (error) {
       console.error("Sign-out error:", error);
       alert("Failed to sign out.");
@@ -142,19 +168,19 @@ export default function TaskList() {
   const toggleDarkMode = async () => {
     if (!user) return;
     const newMode = !isDarkMode;
-    setIsDarkMode(newMode); // Optimistic update
+    setIsDarkMode(newMode);
     try {
       const prefDocRef = doc(db, "preferences", user.uid);
       await setDoc(prefDocRef, { darkMode: newMode }, { merge: true });
     } catch (error) {
       console.error("Error saving dark mode preference:", error);
-      setIsDarkMode(false); // Revert on error
+      setIsDarkMode(false);
       alert("Failed to save dark mode preference.");
     }
   };
 
   if (!user) {
-    return null; // Prevent rendering during redirect
+    return null;
   }
 
   return (
@@ -254,31 +280,79 @@ export default function TaskList() {
                   isDarkMode ? "bg-gray-600" : "bg-white"
                 }`}
               />
-              <span
-                className={`flex-1 text-lg font-medium transition-all duration-300 ${
-                  task.completed
-                    ? isDarkMode
-                      ? "line-through text-gray-500 opacity-70"
-                      : "line-through text-gray-400 opacity-70"
-                    : isDarkMode
-                    ? "text-white"
-                    : "text-gray-800"
-                }`}
-              >
-                {task.text}
-              </span>
-              <button
-                onClick={() => deleteTask(task.id)}
-                className={`p-2 rounded-full transition-all duration-300 hover:scale-110 ${
-                  isDarkMode
-                    ? "text-red-400 hover:bg-red-400 hover:text-white"
-                    : "text-red-500 hover:bg-red-500 hover:text-white"
-                }`}
-              >
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
-                </svg>
-              </button>
+              {editingTaskId === task.id ? (
+                <div className="flex-1 flex items-center gap-2">
+                  <input
+                    type="text"
+                    value={editText}
+                    onChange={(e) => setEditText(e.target.value)}
+                    onKeyDown={(e) => e.key === "Enter" && saveEdit(task.id)}
+                    className={`flex-1 p-2 rounded-lg border-0 focus:outline-none focus:ring-2 focus:ring-teal-400 ${
+                      isDarkMode ? "bg-gray-600 text-white" : "bg-gray-200 text-gray-800"
+                    }`}
+                  />
+                  <button
+                    onClick={() => saveEdit(task.id)}
+                    className={`p-2 rounded-full transition-all duration-300 hover:scale-110 ${
+                      isDarkMode ? "text-green-400 hover:bg-green-400 hover:text-white" : "text-green-500 hover:bg-green-500 hover:text-white"
+                    }`}
+                  >
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
+                    </svg>
+                  </button>
+                  <button
+                    onClick={cancelEdit}
+                    className={`p-2 rounded-full transition-all duration-300 hover:scale-110 ${
+                      isDarkMode ? "text-gray-400 hover:bg-gray-400 hover:text-white" : "text-gray-500 hover:bg-gray-500 hover:text-white"
+                    }`}
+                  >
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  </button>
+                </div>
+              ) : (
+                <>
+                  <span
+                    className={`flex-1 text-lg font-medium transition-all duration-300 ${
+                      task.completed
+                        ? isDarkMode
+                          ? "line-through text-gray-500 opacity-70"
+                          : "line-through text-gray-400 opacity-70"
+                        : isDarkMode
+                        ? "text-white"
+                        : "text-gray-800"
+                    }`}
+                  >
+                    {task.text}
+                  </span>
+                  {!task.completed && (
+                    <button
+                      onClick={() => startEditing(task.id, task.text)}
+                      className={`p-2 rounded-full transition-all duration-300 hover:scale-110 ${
+                        isDarkMode ? "text-yellow-400 hover:bg-yellow-400 hover:text-white" : "text-yellow-500 hover:bg-yellow-500 hover:text-white"
+                      }`}
+                    >
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                      </svg>
+                    </button>
+                  )}
+                  <button
+                    onClick={() => deleteTask(task.id)}
+                    className={`p-2 rounded-full transition-all duration-300 hover:scale-110 ${
+                      isDarkMode
+                        ? "text-red-400 hover:bg-red-400 hover:text-white"
+                        : "text-red-500 hover:bg-red-500 hover:text-white"
+                    }`}
+                  >
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  </button>
+                </>
+              )}
             </li>
           ))}
         </ul>
