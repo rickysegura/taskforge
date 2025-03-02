@@ -40,4 +40,5 @@ Copyright (c) 2025 Ricky Segura
 ## Contact
 
 Follow TaskForge on X @TaskForgeApp_
+
 Questions? Open an issue or tweet us!
