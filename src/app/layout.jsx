@@ -1,7 +1,7 @@
 import { Geist, Geist_Mono } from "next/font/google";
 import { Suspense } from "react"; // Import Suspense
 import "./globals.css";
-import ClientLayout from "./ClientLayout";
+import ClientLayout from "./components/ClientLayout";
 import { Analytics } from "@vercel/analytics/react"
 
 const geistSans = Geist({ variable: "--font-geist-sans", subsets: ["latin"] });

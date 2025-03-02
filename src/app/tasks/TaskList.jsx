@@ -21,7 +21,7 @@ import UsernameInput from "./components/UsernameInput";
 import ProgressBar from "./components/ProgressBar";
 import TaskInput from "./components/TaskInput";
 import TaskCategory from "./components/TaskCategory";
-import CompletedTasks from "./components/CompletedTasks"; // New import
+import CompletedTasks from "./components/CompletedTasks";
 
 export const dynamic = "force-dynamic";
 
