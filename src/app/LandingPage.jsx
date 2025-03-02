@@ -136,9 +136,9 @@ export default function LandingPage() {
           style={{ animationDelay: "0.5s" }}
         >
          <img
-            src="/desktop.png" // Adjust path if needed
+            src="/application.png" // Adjust path if needed
             alt="TaskForge Desktop Screenshot"
-            className="w-full max-w-[350px] md:max-w-[400px] max-h-[600px] rounded-lg shadow-lg object-contain"
+            className="w-full h-full shadow-lg rounded-lg object-cover"
           />
         </div>
       </section>
