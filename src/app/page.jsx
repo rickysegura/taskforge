@@ -75,7 +75,7 @@ export default function Home() {
             </svg>
           </a>
 
-          <Link href="/auth" className="px-6 py-2 rounded-full text-lg font-medium transition-all duration-300 hover:scale-105 bg-teal-600 text-white hover:bg-teal-700 focus:outline-none focus:ring-2 focus:ring-teal-500">
+          <Link href="/login" className="px-6 py-2 rounded-full text-lg font-medium transition-all duration-300 hover:scale-105 bg-teal-600 text-white hover:bg-teal-700 focus:outline-none focus:ring-2 focus:ring-teal-500">
             Sign In
           </Link>
         </div>
@@ -87,7 +87,7 @@ export default function Home() {
           <h2 className="text-5xl md:text-6xl font-extrabold tracking-tight leading-tight mb-6 text-gray-800">Forge Your Productivity</h2>
           <p className="text-xl font-medium mb-8 text-gray-600">Organize your tasks, stay on track, and boost your efficiency with TaskForge — your free ultimate productivity companion.</p>
 
-          <Link href="/auth" className="inline-block px-8 py-4 rounded-full text-xl font-semibold transition-all duration-300 hover:scale-105 hover:shadow-lg bg-teal-600 text-white hover:bg-teal-700 focus:outline-none focus:ring-2 focus:ring-teal-500">
+          <Link href="/login" className="inline-block px-8 py-4 rounded-full text-xl font-semibold transition-all duration-300 hover:scale-105 hover:shadow-lg bg-teal-600 text-white hover:bg-teal-700 focus:outline-none focus:ring-2 focus:ring-teal-500">
             Start Now - It's Free!
           </Link>
         </div>
@@ -118,7 +118,7 @@ export default function Home() {
         <h3 className="text-4xl font-bold mb-6 text-gray-800">Ready to Get Started?</h3>
         <p className="text-xl font-medium mb-8 text-gray-600">Join TaskForge today for free and take control of your productivity.</p>
 
-        <Link href="/auth" className="inline-block px-8 py-4 rounded-full text-xl font-semibold transition-all duration-300 hover:scale-105 hover:shadow-lg bg-teal-600 text-white hover:bg-teal-700 focus:outline-none focus:ring-2 focus:ring-teal-500">
+        <Link href="/login" className="inline-block px-8 py-4 rounded-full text-xl font-semibold transition-all duration-300 hover:scale-105 hover:shadow-lg bg-teal-600 text-white hover:bg-teal-700 focus:outline-none focus:ring-2 focus:ring-teal-500">
           Sign Up Free Now
         </Link>
       </section>
