@@ -13,7 +13,7 @@ TaskForge is a free, simple task management app designed to boost your productiv
 
 ## Screenshot
 
-![TaskForge Landing Page](public/screenshots/application.png)
+![TaskForge Landing Page](public/application.png)
 
 ## Prerequisites
 
