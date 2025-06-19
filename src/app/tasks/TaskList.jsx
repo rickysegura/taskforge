@@ -268,7 +268,7 @@ export default function TaskList() {
       setUsername("");
       setPendingUsername("");
       setLastPasswordChange("");
-      router.push("/auth");
+      router.push("/login");
     } catch (error) {
       console.error("Sign-out error:", error);
       alert("Failed to sign out.");
