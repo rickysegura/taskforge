@@ -4,6 +4,7 @@ import { signInWithEmailAndPassword, createUserWithEmailAndPassword, GoogleAuthP
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { auth } from "../firebase";
+import { FormEvent } from 'react';
 import Link from "next/link";
 
 export default function AuthPage() {
@@ -23,7 +24,7 @@ export default function AuthPage() {
     return () => unsubscribe();
   }, [router]);
 
-  const handleEmailAuth = async (e) => {
+  const handleEmailAuth = async (e:FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setError(null);
     try {
@@ -35,7 +36,7 @@ export default function AuthPage() {
         console.log("Sign-in successful, redirecting to /tasks");
       }
       router.push("/tasks");
-    } catch (err) {
+    } catch (err:any) {
       setError(err.message);
       console.error(isRegistering ? "Registration error:" : "Sign-in error:", err.message);
     }
@@ -48,7 +49,7 @@ export default function AuthPage() {
       await signInWithPopup(auth, provider);
       console.log("Google sign-in successful, redirecting to /tasks");
       router.push("/tasks");
-    } catch (err) {
+    } catch (err:any) {
       setError(err.message);
       console.error("Google sign-in error:", err.message);
     }

@@ -25,13 +25,8 @@ export default function CompletedTasks({
 
   return (
     <div className="mt-6">
-      <h2
-        className={`text-lg sm:text-xl font-semibold mb-2 ${
-          isDarkMode ? "text-gray-300" : "text-gray-600"
-        }`}
-      >
-        Completed Tasks
-      </h2>
+      <h2 className={`text-lg sm:text-xl font-semibold mb-2 ${ isDarkMode ? "text-gray-300" : "text-gray-600" }`}>Completed Tasks</h2>
+      
       <ul className="space-y-6">
         {completedTasks.map((task) => (
           <TaskItem

@@ -21,13 +21,13 @@ export default function TaskCategory({
   priorityOptions,
   categoryOptions,
 }) {
+  
   if (tasks.length === 0) return null;
 
   return (
     <div>
-      <h2 className={`text-lg sm:text-xl font-semibold mb-2 ${categoryColors[category]}`}>
-        {category}
-      </h2>
+      <h2 className={`text-lg sm:text-xl font-semibold mb-2 ${categoryColors[category]}`}>{category}</h2>
+
       <ul className="space-y-6">
         {tasks.map((task) => (
           <TaskItem

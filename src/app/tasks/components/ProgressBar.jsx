@@ -9,12 +9,7 @@ export default function ProgressBar({ completedTasks, totalTasks, progressPercen
           </span>
         </div>
         <div className="w-full bg-gray-200 rounded-full h-4 dark:bg-gray-700">
-          <div
-            className={`h-4 rounded-full transition-all duration-300 ${
-              isDarkMode ? "bg-teal-500" : "bg-teal-600"
-            }`}
-            style={{ width: `${progressPercentage}%` }}
-          ></div>
+          <div className={`h-4 rounded-full transition-all duration-300 ${ isDarkMode ? "bg-teal-500" : "bg-teal-600" }`} style={{ width: `${progressPercentage}%` }}></div>
         </div>
       </div>
     );
