@@ -35,7 +35,6 @@ export default function AuthPage() {
         await signInWithEmailAndPassword(auth, email, password);
         console.log("Sign-in successful, redirecting to /tasks");
       }
-      router.push("/tasks");
     } catch (err:any) {
       setError(err.message);
       console.error(isRegistering ? "Registration error:" : "Sign-in error:", err.message);
@@ -48,7 +47,6 @@ export default function AuthPage() {
       const provider = new GoogleAuthProvider();
       await signInWithPopup(auth, provider);
       console.log("Google sign-in successful, redirecting to /tasks");
-      router.push("/tasks");
     } catch (err:any) {
       setError(err.message);
       console.error("Google sign-in error:", err.message);
