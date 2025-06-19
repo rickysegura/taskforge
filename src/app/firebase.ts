@@ -12,7 +12,7 @@ const firebaseConfig = {
   messagingSenderId: process.env.NEXT_PUBLIC_SENDER_ID!,
   appId: process.env.NEXT_PUBLIC_APP_ID!,
   measurementId: process.env.NEXT_PUBLIC_MEASUREMENT_ID!,
-} as const;
+};
 
 let app:FirebaseApp;
 let auth:Auth;
