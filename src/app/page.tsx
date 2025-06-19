@@ -8,9 +8,9 @@ import Link from "next/link";
 import Footer from "./components/Footer";
 
 export default function Home() {
-  const router = useRouter();
   const [isLoading, setIsLoading] = useState(true);
-  const xHandle = "@TaskForgeApp_";
+  const router = useRouter();
+  const xHandle:string = "@TaskForgeApp_";
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {

@@ -1,7 +1,7 @@
 import Link from "next/link";
 
 export default function Footer() {
- const xHandle = "@TaskForgeApp_";
+ const xHandle:string = "@TaskForgeApp_";
 
  return (
  <footer className="p-6 shadow-xl backdrop-blur-md bg-gray-800 bg-opacity-80 text-white text-center">
