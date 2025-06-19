@@ -92,7 +92,7 @@ export default function TaskList() {
         setUsername("");
         setPendingUsername("");
         setLastPasswordChange("");
-        router.push("/auth");
+        router.push("/login");
         return;
       }
 
@@ -107,7 +107,7 @@ export default function TaskList() {
         console.error("Error fetching tasks:", error);
         if (error.code === "permission-denied") {
           setTasks([]);
-          router.push("/auth");
+          router.push("/login");
         }
       });
 

@@ -15,7 +15,7 @@ export default function Tasks() {
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       if (!user) {
-        router.push("/auth");
+        router.push("/login");
       }
       setIsLoading(false);
     });
